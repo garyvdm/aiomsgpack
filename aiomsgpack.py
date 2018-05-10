@@ -4,7 +4,7 @@ import asyncio
 import msgpack
 
 
-def make_msgpack_protocol_factory(client_connected_cb, unpacker_args={}, packer_args={}, loop=None):
+def make_msgpack_protocol_factory(client_connected_cb=None, unpacker_args={}, packer_args={}, loop=None):
     if loop is None:
         loop = asyncio.get_event_loop()
 
@@ -12,7 +12,7 @@ def make_msgpack_protocol_factory(client_connected_cb, unpacker_args={}, packer_
 
 
 class MsgpackProtocol (asyncio.Protocol):
-    def __init__(self, client_connected_cb, unpacker_args={}, packer_args={}, loop=None):
+    def __init__(self, client_connected_cb=None, unpacker_args={}, packer_args={}, loop=None):
         self._client_connected_cb = client_connected_cb
         self._unpacker = msgpack.Unpacker(**unpacker_args)
         self._packer = msgpack.Packer(**packer_args)
@@ -24,7 +24,8 @@ class MsgpackProtocol (asyncio.Protocol):
 
     def connection_made(self, transport):
         self._transport = transport
-        self._loop.create_task(self._client_connected_cb(self))
+        if self._client_connected_cb:
+            self._loop.create_task(self._client_connected_cb(self))
 
     def connection_lost(self, exc):
         self._exc = exc

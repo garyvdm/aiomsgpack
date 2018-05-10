@@ -55,9 +55,6 @@ class TestClientServer(asynctest.TestCase):
             async def server_connected_cb(proto):
                 server_proto_fut.set_result(proto)
 
-            async def client_connected_cb(proto):
-                pass
-
             loop = asyncio.get_event_loop()
 
             server = await loop.create_unix_server(
@@ -65,7 +62,7 @@ class TestClientServer(asynctest.TestCase):
                 path
             )
             _, client_proto = await loop.create_unix_connection(
-                aiomsgpack.make_msgpack_protocol_factory(client_connected_cb),
+                aiomsgpack.make_msgpack_protocol_factory(),
                 path
             )
             server_proto = await server_proto_fut
